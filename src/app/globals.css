@@ -1,26 +1,319 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Tokens de design. Os valores vêm de src/config/site.ts (theme) e são
+ * injetados no <html> como variáveis --brand-*. Aqui só os ligamos ao Tailwind.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--brand-bg);
+  --color-surface: var(--brand-surface);
+  --color-surface-2: var(--brand-surface-2);
+  --color-line: var(--brand-line);
+  --color-fg: var(--brand-fg);
+  --color-muted: var(--brand-muted);
+  --color-accent: var(--brand-accent);
+  --color-accent-strong: var(--brand-accent-strong);
+  --color-accent-strong-hover: var(--brand-accent-strong-hover);
+  --font-display: var(--font-chakra), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --radius-brand: var(--brand-radius);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--brand-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27160%27 height=%27160%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%27.9%27 numOctaves=%272%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix values=%270 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .04 0%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+    color: var(--brand-fg);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--brand-accent-strong);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 3px;
+  }
+
+  a,
+  button,
+  summary {
+    touch-action: manipulation;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .container-site {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 640px) {
+    .container-site {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* Pequeno título por cima das secções: traço laranja + texto em caixa alta */
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-chakra), ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brand-accent);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 2rem;
+    height: 2px;
+    background: var(--brand-accent);
+  }
+
+  /* ---------- Botões com canto cortado ---------- */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 3rem;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-chakra), ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 200ms var(--ease-out-quart),
+      transform 200ms var(--ease-out-quart);
+  }
+  .btn > svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+  }
+  .btn::before,
+  .btn::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - var(--brand-chamfer)),
+      calc(100% - var(--brand-chamfer)) 100%,
+      0 100%
+    );
+    transition: background-color 200ms var(--ease-out-quart);
+  }
+  .btn::before {
+    inset: 0;
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.98);
+  }
+  .btn-lg {
+    min-height: 3.5rem;
+    padding-inline: 1.875rem;
+    font-size: 0.9375rem;
+  }
+
+  .btn-primary {
+    color: #fff;
+  }
+  .btn-primary::before {
+    background: var(--brand-accent-strong);
+  }
+  .btn-primary:hover::before {
+    background: var(--brand-accent-strong-hover);
+  }
+
+  .btn-outline {
+    color: var(--brand-fg);
+  }
+  .btn-outline::before {
+    background: var(--brand-accent);
+  }
+  .btn-outline::after {
+    inset: 1.5px;
+    background: var(--brand-bg);
+  }
+  .btn-outline:hover::after {
+    background: color-mix(in srgb, var(--brand-accent) 14%, var(--brand-bg));
+  }
+
+  /* Cartão com canto cortado e linha de destaque */
+  .chamfer {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - var(--brand-chamfer) * 1.5),
+      calc(100% - var(--brand-chamfer) * 1.5) 100%,
+      0 100%
+    );
+  }
+
+  .chamfer-sm {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+  }
+
+  /*
+   * Coluna de texto dos blocos imagem + texto: alinha com a margem do .container-site
+   * do lado de fora (o lado da imagem vai até à borda do ecrã).
+   */
+  .split-pad-start,
+  .split-pad-end {
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 640px) {
+    .split-pad-start,
+    .split-pad-end {
+      padding-inline: 2rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .split-pad-start {
+      padding-left: max(2rem, calc((100vw - 72rem) / 2 + 2rem));
+      padding-right: 4rem;
+    }
+    .split-pad-end {
+      padding-left: 4rem;
+      padding-right: max(2rem, calc((100vw - 72rem) / 2 + 2rem));
+    }
+  }
+
+  /* Funde as bordas de uma foto com o fundo (usado na foto do topo) */
+  .mask-fade-edges {
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 52%, #000 40%, transparent 100%);
+  }
+
+  /* Texto só em contorno (marca d'água gigante do topo) */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px color-mix(in srgb, var(--brand-fg) 14%, transparent);
+  }
+
+  /* Formulário */
+  .field {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    color: var(--brand-fg);
+    background: var(--brand-bg);
+    border: 1px solid var(--brand-line);
+    border-radius: var(--brand-radius);
+    transition: border-color 150ms ease;
+    scroll-margin-top: 7rem;
+  }
+  .field::placeholder {
+    color: color-mix(in srgb, var(--brand-muted) 75%, transparent);
+  }
+  .field:hover {
+    border-color: color-mix(in srgb, var(--brand-fg) 25%, transparent);
+  }
+  .field:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 0;
+    border-color: var(--brand-accent);
+  }
+  .field[aria-invalid="true"] {
+    border-color: #f87171;
+  }
+
+  /* Variante só com linha por baixo (formulário de marcação) */
+  .field-line {
+    min-height: 2.75rem;
+    padding: 0.5rem 0;
+    background: transparent;
+    border-width: 0 0 1px;
+    border-radius: 0;
+  }
+  .field-line:focus-visible {
+    outline: none;
+    border-color: var(--brand-accent);
+    box-shadow: 0 1px 0 0 var(--brand-accent);
+  }
+  select.field-line {
+    cursor: pointer;
+  }
+  select.field-line option {
+    background: var(--brand-surface);
+  }
+  .field-line::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    cursor: pointer;
+  }
+}
+
+/* ---------- Animações (só para quem não pediu movimento reduzido) ---------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-fade-up {
+    animation: fade-up 800ms var(--ease-out-quart) both;
+    animation-delay: var(--delay, 0ms);
+  }
+  .animate-fade-in {
+    animation: fade-in 1200ms var(--ease-out-quart) both;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  /* Entrada suave ao fazer scroll (CSS puro; navegadores sem suporte mostram tudo sem animação) */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: fade-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }
